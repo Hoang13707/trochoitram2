@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trò chơi Trạm 2 - CNTT</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #0b1224;
+      color: #f0f4ff;
+    }
+
+    /* Banner */
+    .banner {
+      width: 100%;
+      padding: 24px;
+      text-align: center;
+      background: linear-gradient(90deg, #005bea, #00c6fb);
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      border-bottom: 4px solid rgba(255,255,255,0.2);
+      text-shadow: 0 0 6px rgba(255,255,255,0.6), 0 0 12px #00c6fb;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 20px auto;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+    }
+
+    .status {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .question {
+      font-size: 20px;
+      margin: 10px 0;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 15px 0;
+    }
+
+    .answer {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .hidden {
+      background: rgba(255,255,255,0.2);
+      color: transparent;
+    }
+
+    .revealed {
+      background: linear-gradient(90deg, #053854, #0b6b9a);
+      color: white;
+      text-shadow: 0 0 6px rgba(255,255,255,0.6);
+    }
+
+    .teams {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+      gap: 20px;
+    }
+
+    .team {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .team h2 {
+      margin-top: 0;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .team input {
+      width: 100%;
+      padding: 6px;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      border: none;
+    }
+
+    .team button {
+      margin: 4px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-submit { background: #2ecc71; color: white; }
+
+    .controls {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .controls button {
+      margin: 5px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-start { background: #3498db; color: white; }
+    .btn-next { background: #9b59b6; color: white; }
+    .btn-restart { background: #e74c3c; color: white; }
+
+    .message {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #ffcc33;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">💻Trò chơi Trạm 2 — CNTT Challenge💻</div>
+
+  <div class="container">
+    <div class="status">
+      <div id="progress">Câu 1/3</div>
+    </div>
+    <div class="question" id="question">...</div>
+    <div class="answers" id="answers"></div>
+
+    <div class="teams">
+      <div class="team">
+        <h2>Đội A - Điểm: <span id="scoreA">0</span></h2>
+        <input id="inputA" placeholder="Nhập 4 đáp án, cách nhau bởi dấu phẩy">
+        <button class="btn-submit" onclick="lockAnswers('A')">Xác nhận</button>
+      </div>
+      <div class="team">
+        <h2>Đội B - Điểm: <span id="scoreB">0</span></h2>
+        <input id="inputB" placeholder="Nhập 4 đáp án, cách nhau bởi dấu phẩy">
+        <button class="btn-submit" onclick="lockAnswers('B')">Xác nhận</button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-start" onclick="startRound()" id="startBtn">Bắt đầu</button>
+      <button class="btn-next" onclick="nextQuestion()" style="display:none" id="nextBtn">Câu tiếp</button>
+      <button class="btn-restart" onclick="restartGame()" id="restartBtn">Chơi lại</button>
+    </div>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        text: "Ngôn ngữ lập trình phổ biến trong lĩnh vực trí tuệ nhân tạo?",
+        answers: ["Python", "Java", "C++", "R"]
+      },
+      {
+        text: "Các hệ điều hành thông dụng cho máy tính cá nhân?",
+        answers: ["Windows", "Linux", "macOS", "Ubuntu"]
+      },
+      {
+        text: "Những công nghệ thường dùng trong phát triển web?",
+        answers: ["HTML", "CSS", "JavaScript", "React"]
+      }
+    ];
+
+    let currentQ = 0;
+    let scoreA = 0, scoreB = 0;
+    let answersA = [], answersB = [];
+
+    function renderQuestion() {
+      const q = questions[currentQ];
+      document.getElementById("question").textContent = q.text;
+      document.getElementById("progress").textContent = `Câu ${currentQ+1}/${questions.length}`;
+      const ansDiv = document.getElementById("answers");
+      ansDiv.innerHTML = "";
+      q.answers.forEach((ans,i)=>{
+        const div = document.createElement("div");
+        div.className = "answer hidden";
+        div.id = `ans${i}`;
+        div.textContent = ans;
+        div.onclick = () => revealAnswer(i);
+        ansDiv.appendChild(div);
+      });
+      document.getElementById("message").textContent="";
+      document.getElementById("nextBtn").style.display="none";
+    }
+
+    function lockAnswers(team){
+      const input = document.getElementById("input"+team).value.trim();
+      if(!input) return;
+      const arr = input.split(",").map(a=>a.trim().toLowerCase());
+      if(team==="A") answersA = arr;
+      else answersB = arr;
+      document.getElementById("input"+team).disabled = true;
+    }
+
+    function startRound(){
+      // Bắt đầu vòng, chỉ hiện bảng câu hỏi ẩn
+      document.querySelectorAll(".answer").forEach(el=>{
+        el.className="answer hidden";
+      });
+      document.getElementById("message").textContent="Click vào từng ô để lật đáp án!";
+    }
+
+    function revealAnswer(i){
+      const q = questions[currentQ];
+      const div = document.getElementById("ans"+i);
+      if(div.classList.contains("revealed")) return; // tránh lật lại
+      div.className="answer revealed";
+      const ansLower = q.answers[i].toLowerCase();
+      if(answersA.includes(ansLower)){
+        scoreA+=3; document.getElementById("scoreA").textContent=scoreA;
+      }
+      if(answersB.includes(ansLower)){
+        scoreB+=3; document.getElementById("scoreB").textContent=scoreB;
+      }
+
+      // Nếu tất cả đã lật -> kết thúc câu
+      const allRevealed = [...document.querySelectorAll(".answer")]
+                          .every(el=>el.classList.contains("revealed"));
+      if(allRevealed) endQuestion();
+    }
+
+    function endQuestion(){
+      if(currentQ < questions.length-1){
+        document.getElementById("message").textContent=`Xong câu ${currentQ+1}, mời qua câu tiếp theo`;
+        document.getElementById("nextBtn").style.display="inline-block";
+      } else {
+        let msg="Chúc mừng bạn đã hoàn thành! ";
+        if(scoreA>scoreB) msg+=`Đội A thắng (${scoreA} vs ${scoreB}).`;
+        else if(scoreB>scoreA) msg+=`Đội B thắng (${scoreB} vs ${scoreA}).`;
+        else msg+=`Hai đội hòa (${scoreA} vs ${scoreB}).`;
+        document.getElementById("message").textContent=msg;
+      }
+    }
+
+    function nextQuestion(){
+      currentQ++;
+      document.getElementById("inputA").value=""; document.getElementById("inputB").value="";
+      document.getElementById("inputA").disabled=false; document.getElementById("inputB").disabled=false;
+      answersA=[]; answersB=[];
+      renderQuestion();
+    }
+
+    function restartGame(){
+      currentQ=0; scoreA=0; scoreB=0;
+      document.getElementById("scoreA").textContent=0;
+      document.getElementById("scoreB").textContent=0;
+      document.getElementById("inputA").value=""; document.getElementById("inputB").value="";
+      document.getElementById("inputA").disabled=false; document.getElementById("inputB").disabled=false;
+      renderQuestion();
+    }
+
+    // Hiện câu hỏi ngay từ đầu
+    window.onload = () => {
+      renderQuestion();
+    };
+  </script>
+</body>
+</html>
