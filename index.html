@@ -27,7 +27,7 @@
     }
 
     .container {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 20px auto;
       padding: 20px;
       background: rgba(255,255,255,0.05);
@@ -77,14 +77,13 @@
     }
 
     .teams {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 20px;
+      margin-top: 20px;
     }
 
     .team {
-      flex: 1;
       background: rgba(255,255,255,0.05);
       padding: 15px;
       border-radius: 8px;
@@ -105,7 +104,7 @@
     }
 
     .team button {
-      margin: 4px;
+      margin: 4px 0;
       padding: 6px 12px;
       border: none;
       border-radius: 4px;
@@ -163,6 +162,16 @@
         <input id="inputB" placeholder="Nhập 4 đáp án, cách nhau bởi dấu phẩy">
         <button class="btn-submit" onclick="lockAnswers('B')">Xác nhận</button>
       </div>
+      <div class="team">
+        <h2>Đội C - Điểm: <span id="scoreC">0</span></h2>
+        <input id="inputC" placeholder="Nhập 4 đáp án, cách nhau bởi dấu phẩy">
+        <button class="btn-submit" onclick="lockAnswers('C')">Xác nhận</button>
+      </div>
+      <div class="team">
+        <h2>Đội D - Điểm: <span id="scoreD">0</span></h2>
+        <input id="inputD" placeholder="Nhập 4 đáp án, cách nhau bởi dấu phẩy">
+        <button class="btn-submit" onclick="lockAnswers('D')">Xác nhận</button>
+      </div>
     </div>
 
     <div class="controls">
@@ -190,8 +199,8 @@
     ];
 
     let currentQ = 0;
-    let scoreA = 0, scoreB = 0;
-    let answersA = [], answersB = [];
+    let scoreA = 0, scoreB = 0, scoreC = 0, scoreD = 0;
+    let answersA = [], answersB = [], answersC = [], answersD = [];
 
     function renderQuestion() {
       const q = questions[currentQ];
@@ -216,12 +225,13 @@
       if(!input) return;
       const arr = input.split(",").map(a=>a.trim().toLowerCase());
       if(team==="A") answersA = arr;
-      else answersB = arr;
+      else if(team==="B") answersB = arr;
+      else if(team==="C") answersC = arr;
+      else if(team==="D") answersD = arr;
       document.getElementById("input"+team).disabled = true;
     }
 
     function startRound(){
-      // Bắt đầu vòng, chỉ hiện bảng câu hỏi ẩn
       document.querySelectorAll(".answer").forEach(el=>{
         el.className="answer hidden";
       });
@@ -231,8 +241,9 @@
     function revealAnswer(i){
       const q = questions[currentQ];
       const div = document.getElementById("ans"+i);
-      if(div.classList.contains("revealed")) return; // tránh lật lại
+      if(div.classList.contains("revealed")) return;
       div.className="answer revealed";
+
       const ansLower = q.answers[i].toLowerCase();
       if(answersA.includes(ansLower)){
         scoreA+=3; document.getElementById("scoreA").textContent=scoreA;
@@ -240,8 +251,13 @@
       if(answersB.includes(ansLower)){
         scoreB+=3; document.getElementById("scoreB").textContent=scoreB;
       }
+      if(answersC.includes(ansLower)){
+        scoreC+=3; document.getElementById("scoreC").textContent=scoreC;
+      }
+      if(answersD.includes(ansLower)){
+        scoreD+=3; document.getElementById("scoreD").textContent=scoreD;
+      }
 
-      // Nếu tất cả đã lật -> kết thúc câu
       const allRevealed = [...document.querySelectorAll(".answer")]
                           .every(el=>el.classList.contains("revealed"));
       if(allRevealed) endQuestion();
@@ -253,34 +269,49 @@
         document.getElementById("nextBtn").style.display="inline-block";
       } else {
         let msg="Chúc mừng bạn đã hoàn thành! ";
-        if(scoreA>scoreB) msg+=`Đội A thắng (${scoreA} vs ${scoreB}).`;
-        else if(scoreB>scoreA) msg+=`Đội B thắng (${scoreB} vs ${scoreA}).`;
-        else msg+=`Hai đội hòa (${scoreA} vs ${scoreB}).`;
+        const scores = [
+          {team:"A",score:scoreA},
+          {team:"B",score:scoreB},
+          {team:"C",score:scoreC},
+          {team:"D",score:scoreD},
+        ];
+        scores.sort((a,b)=>b.score-a.score);
+        if(scores[0].score===scores[1].score){
+          msg+=`Hai đội hòa cao nhất (${scores[0].score} điểm).`;
+        } else {
+          msg+=`Đội ${scores[0].team} thắng (${scores[0].score} điểm).`;
+        }
         document.getElementById("message").textContent=msg;
       }
     }
 
     function nextQuestion(){
       currentQ++;
-      document.getElementById("inputA").value=""; document.getElementById("inputB").value="";
-      document.getElementById("inputA").disabled=false; document.getElementById("inputB").disabled=false;
-      answersA=[]; answersB=[];
+      ["A","B","C","D"].forEach(t=>{
+        document.getElementById("input"+t).value="";
+        document.getElementById("input"+t).disabled=false;
+      });
+      answersA=[]; answersB=[]; answersC=[]; answersD=[];
       renderQuestion();
     }
 
     function restartGame(){
-      currentQ=0; scoreA=0; scoreB=0;
+      currentQ=0; scoreA=0; scoreB=0; scoreC=0; scoreD=0;
       document.getElementById("scoreA").textContent=0;
       document.getElementById("scoreB").textContent=0;
-      document.getElementById("inputA").value=""; document.getElementById("inputB").value="";
-      document.getElementById("inputA").disabled=false; document.getElementById("inputB").disabled=false;
+      document.getElementById("scoreC").textContent=0;
+      document.getElementById("scoreD").textContent=0;
+      ["A","B","C","D"].forEach(t=>{
+        document.getElementById("input"+t).value="";
+        document.getElementById("input"+t).disabled=false;
+      });
       renderQuestion();
     }
 
-    // Hiện câu hỏi ngay từ đầu
     window.onload = () => {
       renderQuestion();
     };
   </script>
 </body>
 </html>
+
