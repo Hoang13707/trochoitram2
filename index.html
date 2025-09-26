@@ -139,6 +139,23 @@
       font-weight: bold;
       color: #ffcc33;
     }
+
+    .ranking {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+    }
+
+    .ranking h3 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .ranking ol {
+      padding-left: 20px;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
@@ -180,6 +197,7 @@
       <button class="btn-restart" onclick="restartGame()" id="restartBtn">Chơi lại</button>
     </div>
     <div class="message" id="message"></div>
+    <div class="ranking" id="ranking" style="display:none"></div>
   </div>
 
   <script>
@@ -218,6 +236,7 @@
       });
       document.getElementById("message").textContent="";
       document.getElementById("nextBtn").style.display="none";
+      document.getElementById("ranking").style.display="none";
     }
 
     function lockAnswers(team){
@@ -268,21 +287,26 @@
         document.getElementById("message").textContent=`Xong câu ${currentQ+1}, mời qua câu tiếp theo`;
         document.getElementById("nextBtn").style.display="inline-block";
       } else {
-        let msg="Chúc mừng bạn đã hoàn thành! ";
-        const scores = [
-          {team:"A",score:scoreA},
-          {team:"B",score:scoreB},
-          {team:"C",score:scoreC},
-          {team:"D",score:scoreD},
-        ];
-        scores.sort((a,b)=>b.score-a.score);
-        if(scores[0].score===scores[1].score){
-          msg+=`Hai đội hòa cao nhất (${scores[0].score} điểm).`;
-        } else {
-          msg+=`Đội ${scores[0].team} thắng (${scores[0].score} điểm).`;
-        }
-        document.getElementById("message").textContent=msg;
+        document.getElementById("message").textContent="🎉 Trò chơi kết thúc! Bảng xếp hạng:";
+        showRanking();
       }
+    }
+
+    function showRanking(){
+      const scores = [
+        {team:"Đội A",score:scoreA},
+        {team:"Đội B",score:scoreB},
+        {team:"Đội C",score:scoreC},
+        {team:"Đội D",score:scoreD},
+      ];
+      scores.sort((a,b)=>b.score-a.score);
+      let html = "<h3>🏆 Bảng xếp hạng 🏆</h3><ol>";
+      scores.forEach(s=>{
+        html += `<li>${s.team}: ${s.score} điểm</li>`;
+      });
+      html += "</ol>";
+      document.getElementById("ranking").innerHTML = html;
+      document.getElementById("ranking").style.display="block";
     }
 
     function nextQuestion(){
@@ -314,4 +338,5 @@
   </script>
 </body>
 </html>
+
 
