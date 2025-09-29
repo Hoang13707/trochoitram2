@@ -63,6 +63,7 @@
       font-weight: bold;
       cursor: pointer;
       font-size: 18px;
+      user-select: none;
     }
 
     .hidden {
@@ -185,14 +186,14 @@
       <!-- Hàng trên -->
       <div class="team">
         <h2>Đội A - Điểm: <span id="scoreA">0</span></h2>
-        <input id="inputA" placeholder="Nhập 4 đáp án, cách nhau bởi dấu phẩy">
+        <input id="inputA" placeholder="Nhập 6 đáp án, cách nhau bởi dấu phẩy">
         <button class="btn-submit" onclick="lockAnswers('A')">Xác nhận</button>
         <div id="puzzleA" class="puzzle" style="display:none"></div>
         <div id="countdownA" class="countdown"></div>
       </div>
       <div class="team">
         <h2>Đội B - Điểm: <span id="scoreB">0</span></h2>
-        <input id="inputB" placeholder="Nhập 4 đáp án, cách nhau bởi dấu phẩy">
+        <input id="inputB" placeholder="Nhập 6 đáp án, cách nhau bởi dấu phẩy">
         <button class="btn-submit" onclick="lockAnswers('B')">Xác nhận</button>
         <div id="puzzleB" class="puzzle" style="display:none"></div>
         <div id="countdownB" class="countdown"></div>
@@ -200,14 +201,14 @@
       <!-- Hàng dưới -->
       <div class="team">
         <h2>Đội C - Điểm: <span id="scoreC">0</span></h2>
-        <input id="inputC" placeholder="Nhập 4 đáp án, cách nhau bởi dấu phẩy">
+        <input id="inputC" placeholder="Nhập 6 đáp án, cách nhau bởi dấu phẩy">
         <button class="btn-submit" onclick="lockAnswers('C')">Xác nhận</button>
         <div id="puzzleC" class="puzzle" style="display:none"></div>
         <div id="countdownC" class="countdown"></div>
       </div>
       <div class="team">
         <h2>Đội D - Điểm: <span id="scoreD">0</span></h2>
-        <input id="inputD" placeholder="Nhập 4 đáp án, cách nhau bởi dấu phẩy">
+        <input id="inputD" placeholder="Nhập 6 đáp án, cách nhau bởi dấu phẩy">
         <button class="btn-submit" onclick="lockAnswers('D')">Xác nhận</button>
         <div id="puzzleD" class="puzzle" style="display:none"></div>
         <div id="countdownD" class="countdown"></div>
@@ -226,25 +227,59 @@
   </div>
 
   <script>
+    // ====== DATA: 6 đáp án / mỗi đáp án có points 3..6 ======
     const questions = [
-      { text: "Những ngôn ngữ lập trình phổ biến trong giới lập trình viên?", answers: ["Python", "Java", "C++", "JavaScript"] },
-      { text: "Những hệ điều hành thông dụng cho máy tính cá nhân?", answers: ["Windows", "Linux", "macOS", "Ubuntu"] },
-      { text: "Những công ty công nghệ nổi tiếng trên thế giới?", answers: ["Apple", "Google", "Microsoft", "Samsung"] }
+      { 
+        text: "Những ngôn ngữ lập trình phổ biến trong giới lập trình viên?", 
+        answers: [
+          {text:"Python", points:3}, 
+          {text:"Java", points:3}, 
+          {text:"C++", points:3}, 
+          {text:"JavaScript", points:4}, 
+          {text:"C#", points:5}, 
+          {text:"PHP", points:6}
+        ]
+      },
+      { 
+        text: "Những hệ điều hành thông dụng cho máy tính cá nhân?", 
+        answers: [
+          {text:"Windows", points:3}, 
+          {text:"Linux", points:3}, 
+          {text:"macOS", points:3}, 
+          {text:"Ubuntu", points:5}, 
+          {text:"ChromeOS", points:4}, 
+          {text:"Fedora", points:6}
+        ]
+      },
+      { 
+        text: "Những công ty công nghệ nổi tiếng trên thế giới?", 
+        answers: [
+          {text:"Apple", points:3}, 
+          {text:"Google", points:3}, 
+          {text:"Microsoft", points:3}, 
+          {text:"Samsung", points:4}, 
+          {text:"Amazon", points:5}, 
+          {text:"Intel", points:6}
+        ]
+      }
     ];
 
+    // ====== PUZZLES cho phần cuối (mật mã) ======
     const puzzles = [
-      { q: "Giao thức giúp bạn gõ “www.” để vào trang web có tên viết tắt HTTP. Đếm số chữ cái trong mỗi từ đầy đủ: Hyper – Text – Transfer – Protocol, rồi ghép lại. Mã là gì?", a: "5488", code: "5488" },
-      { q: "Đổi số nhị phân 10000000000 sang hệ thập phân, bạn sẽ được mật mã 4 chữ số là gì?", a: "1024", code: "1024" },
-      { q: "Ba chữ cái viết tắt chỉ “bộ não” của máy tính là C, P, U. Nếu đổi mỗi chữ sang số theo bảng chữ cái (A=1, B=2, …) rồi nhân lại, thì mật mã 4 chữ số là gì?", a: "1008", code: "1008" },
-      { q: "Cho trước: 💻 + 💻 = 80; 📱 + 📱 + 📱 = 36 ; 💻 + 📱 + 📺 = 70. Cần tính: 💻 x 📱 x 📺 = ?", a: "8640", code: "8640" }
+      { q: 'Giao thức giúp bạn gõ "www." để vào trang web có tên viết tắt HTTP. Đếm số chữ cái trong mỗi từ đầy đủ: Hyper – Text – Transfer – Protocol, rồi ghép lại. Mã là gì?', a: "5488", code: "5488" },
+      { q: 'Đổi số nhị phân 10000000000 sang hệ thập phân, bạn sẽ được mật mã 4 chữ số là gì?', a: "1024", code: "1024" },
+      { q: 'Ba chữ cái viết tắt chỉ “bộ não” của máy tính là C, P, U. Nếu đổi mỗi chữ sang số theo bảng chữ cái (A=1, B=2, …) rồi nhân lại, thì mật mã 4 chữ số là gì?', a: "1008", code: "1008" },
+      { q: 'Cho trước: 💻 + 💻 = 80; 📱 + 📱 + 📱 = 36 ; 💻 + 📱 + 📺 = 70. Cần tính: 💻 x 📱 x 📺 = ?', a: "8640", code: "8640" }
     ];
 
+    // ====== trạng thái ======
     let currentQ = 0;
     let scoreA = 0, scoreB = 0, scoreC = 0, scoreD = 0;
     let answersA = [], answersB = [], answersC = [], answersD = [];
     let puzzleMap = {};
     let countdownTimer = null;
 
+    // Hiển thị câu + 6 ô ẩn
     function renderQuestion() {
       const q = questions[currentQ];
       document.getElementById("question").textContent = q.text;
@@ -255,7 +290,8 @@
         const div = document.createElement("div");
         div.className = "answer hidden";
         div.id = `ans${i}`;
-        div.textContent = ans;
+        // hiển thị text (nhưng vì class hidden color:transparent nên sẽ ẩn), khi lật sẽ show kèm điểm
+        div.textContent = ans.text;
         div.onclick = () => revealAnswer(i);
         ansDiv.appendChild(div);
       });
@@ -263,12 +299,19 @@
       document.getElementById("nextBtn").style.display="none";
       document.getElementById("rankingTable").style.display = "none";
       document.getElementById("rankingTable").innerHTML = "";
+      // ẩn puzzle sections (nếu còn)
+      ["A","B","C","D"].forEach(t=>{
+        document.getElementById("puzzle"+t).style.display="none";
+        document.getElementById("puzzle"+t).innerHTML="";
+        document.getElementById("countdown"+t).textContent="";
+      });
     }
 
+    // Lưu đáp án của từng đội (input: "a,b,c,...")
     function lockAnswers(team){
       const input = document.getElementById("input"+team).value.trim();
       if(!input) return;
-      const arr = input.split(",").map(a=>a.trim().toLowerCase());
+      const arr = input.split(",").map(a=>a.trim().toLowerCase()).filter(a=>a!=="");
       if(team==="A") answersA = arr;
       else if(team==="B") answersB = arr;
       else if(team==="C") answersC = arr;
@@ -276,6 +319,7 @@
       document.getElementById("input"+team).disabled = true;
     }
 
+    // Bắt đầu lượt (ẩn/đặt lại trạng thái ẩn cho ô đáp án)
     function startRound(){
       document.querySelectorAll(".answer").forEach(el=>{
         el.className="answer hidden";
@@ -283,17 +327,27 @@
       document.getElementById("message").textContent="Click vào từng ô để lật đáp án!";
     }
 
+    // Lật 1 đáp án (cộng điểm tương ứng cho đội đã đoán đúng)
     function revealAnswer(i){
       const q = questions[currentQ];
       const div = document.getElementById("ans"+i);
-      if(div.classList.contains("revealed")) return;
+      if(!div || div.classList.contains("revealed")) return;
       div.className="answer revealed";
-      const ansLower = q.answers[i].toLowerCase();
-      if(answersA.includes(ansLower)){ scoreA+=3; document.getElementById("scoreA").textContent=scoreA; }
-      if(answersB.includes(ansLower)){ scoreB+=3; document.getElementById("scoreB").textContent=scoreB; }
-      if(answersC.includes(ansLower)){ scoreC+=3; document.getElementById("scoreC").textContent=scoreC; }
-      if(answersD.includes(ansLower)){ scoreD+=3; document.getElementById("scoreD").textContent=scoreD; }
 
+      const ansText = q.answers[i].text;
+      const ansLower = ansText.toLowerCase();
+      const pts = q.answers[i].points;
+
+      // hiển thị cùng điểm
+      div.textContent = `${ansText} (+${pts}đ)`;
+
+      // cộng điểm nếu đội đã nhập đáp án đó
+      if(answersA.includes(ansLower)){ scoreA+=pts; document.getElementById("scoreA").textContent=scoreA; }
+      if(answersB.includes(ansLower)){ scoreB+=pts; document.getElementById("scoreB").textContent=scoreB; }
+      if(answersC.includes(ansLower)){ scoreC+=pts; document.getElementById("scoreC").textContent=scoreC; }
+      if(answersD.includes(ansLower)){ scoreD+=pts; document.getElementById("scoreD").textContent=scoreD; }
+
+      // nếu tất cả ô đã lật -> kết thúc câu
       const allRevealed = [...document.querySelectorAll(".answer")]
                           .every(el=>el.classList.contains("revealed"));
       if(allRevealed) endQuestion();
@@ -304,12 +358,14 @@
         document.getElementById("message").textContent=`Xong câu ${currentQ+1}, mời qua câu tiếp theo`;
         document.getElementById("nextBtn").style.display="inline-block";
       } else {
+        // hiển thị bảng xếp hạng và mở puzzle theo thứ tự
         showRanking();
       }
     }
 
     function nextQuestion(){
       currentQ++;
+      // reset inputs cho đội
       ["A","B","C","D"].forEach(t=>{
         document.getElementById("input"+t).value="";
         document.getElementById("input"+t).disabled=false;
@@ -319,7 +375,7 @@
     }
 
     function restartGame(){
-      if(countdownTimer) clearInterval(countdownTimer);
+      if(countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
       currentQ=0; scoreA=0; scoreB=0; scoreC=0; scoreD=0;
       ["A","B","C","D"].forEach(t=>{
         document.getElementById("score"+t).textContent=0;
@@ -333,9 +389,11 @@
       document.getElementById("rankingTable").style.display = "none";
       document.getElementById("rankingTable").innerHTML = "";
       document.getElementById("message").textContent = "";
+      answersA=[]; answersB=[]; answersC=[]; answersD=[];
       renderQuestion();
     }
 
+    // Hiển thị bảng xếp hạng ở cuối, và gán puzzle cho từng đội theo thứ tự xếp hạng
     function showRanking(){
       let results = [
         {team:"A",score:scoreA},
@@ -367,69 +425,81 @@
       rankingTable.innerHTML = tableHTML;
       rankingTable.style.display = "block";
 
+      // gán puzzle (xáo trộn) cho từng đội theo thứ tự (top1 -> puzzle 0, ...)
       let shuffled = [...puzzles].sort(()=>Math.random()-0.5);
-      results.forEach((r,i)=>{ puzzleMap[r.team] = shuffled[i]; });
+      results.forEach((r,i)=>{ puzzleMap[r.team] = shuffled[i % shuffled.length]; });
 
-      // reset puzzle & countdown
+      // reset puzzle & countdown hiển thị
       ["A","B","C","D"].forEach(t=>{
         document.getElementById("puzzle"+t).style.display="none";
         document.getElementById("puzzle"+t).innerHTML="";
         document.getElementById("countdown"+t).textContent="";
       });
 
+      // mở puzzle theo thứ tự: top1 ngay, top2 sau 5s, top3 sau 10s, top4 sau 15s (sử dụng đếm ngược từng đội)
       unlockSequentially(results, 0);
     }
 
+    // mở lần lượt (đệ quy)
     function unlockSequentially(results, idx){
       if(idx >= results.length) return;
       let r = results[idx];
       const team = r.team;
       if(idx===0){
-        // Top1 mở ngay
         showPuzzle(team);
-        // bắt đầu countdown cho team tiếp theo
+        // tiếp tục mở cho các đội tiếp theo
         unlockSequentially(results, idx+1);
       } else {
         let time = 5;
         const cdDiv = document.getElementById("countdown"+team);
         cdDiv.textContent = "Mở sau: " + time + "s";
+        // dùng interval, khi hết thì mở puzzle và gọi tiếp
         countdownTimer = setInterval(()=>{
           time--;
-          cdDiv.textContent = "Mở sau: " + time + "s";
-          if(time<=0){
+          if(time <= 0){
             clearInterval(countdownTimer);
-            cdDiv.textContent="";
+            countdownTimer = null;
+            cdDiv.textContent = "";
             showPuzzle(team);
             unlockSequentially(results, idx+1);
+          } else {
+            cdDiv.textContent = "Mở sau: " + time + "s";
           }
-        },1000);
+        }, 1000);
       }
     }
 
+    // hiển thị puzzle cho 1 đội
     function showPuzzle(team){
       const p = puzzleMap[team];
       const div = document.getElementById("puzzle"+team);
-      div.style.display="block";
-      div.innerHTML = `${p.q}<br>
-        <input id="ans${team}" placeholder="Nhập đáp án">
+      div.style.display = "block";
+      // input id riêng để không conflict: puzzleInp{team}
+      div.innerHTML = `<div style="font-size:15px; margin-bottom:6px; text-align:left;">${p.q}</div>
+        <input id="puzzleInp${team}" placeholder="Nhập đáp án">
         <button onclick="checkPuzzle('${team}')">Xác nhận</button>
         <div class="code" id="code${team}"></div>`;
     }
 
+    // kiểm tra đáp án puzzle
     function checkPuzzle(team){
-      const ans = document.getElementById("ans"+team).value.trim().toLowerCase();
+      const inp = document.getElementById("puzzleInp"+team);
+      if(!inp) return;
+      const ans = inp.value.trim();
       const puzzle = puzzleMap[team];
       if(!puzzle) return;
       if(ans === puzzle.a){
-        document.getElementById("code"+team).textContent = "Mã của bạn: "+puzzle.code;
+        document.getElementById("code"+team).textContent = "Mã của bạn: " + puzzle.code;
       } else {
         document.getElementById("code"+team).textContent = "Sai, thử lại!";
       }
     }
 
+    // gọi render lúc load trang
     window.onload = () => { renderQuestion(); };
   </script>
 </body>
 </html>
+
 
 
